@@ -11,5 +11,8 @@
     "url": "official.github.com:AndriiZhabrovets/notes-web-app.git"
   },
   "author": "Andrii Zhabrovets",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
