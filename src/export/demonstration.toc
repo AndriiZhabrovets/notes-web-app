@@ -1,5 +1,5 @@
 \contentsline {section}{\numberline {1}Sections}{2}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Subsections}{2}{subsection.1.1}%
 \contentsline {subsubsection}{\numberline {1.1.1}Subsubsections}{2}{subsubsection.1.1.1}%
-\contentsline {section}{\numberline {2}Lists}{4}{section.2}%
-\contentsline {section}{\numberline {3}Formulas}{5}{section.3}%
+\contentsline {section}{\numberline {2}Lists}{3}{section.2}%
+\contentsline {section}{\numberline {3}Formulas}{4}{section.3}%

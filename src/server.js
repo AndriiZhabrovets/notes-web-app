@@ -138,34 +138,24 @@ app.post('/export', async (req, res) => {
         if (!fs.existsSync(imagesPath)) fs.mkdirSync(imagesPath, { recursive: true });
 
     // Download any remote images and rewrite paths
-    let content = originalContent;
-    const imageRegex = /!\[\]\((.*?)\)/g;
-    const downloads = [];
-    let match;
-    while ((match = imageRegex.exec(originalContent)) !== null) {
-        const url = match[1];
-        const filename = path.basename(url.split('?')[0]);
-        const localRel = path.posix.join('images', safeName, filename);
-        const localFull = path.join(TEX_DIR, localRel);
-        downloads.push(downloadImage(url, localFull));
-        content = content.split(url).join(localRel);
-    }
 
-    try {
-        await Promise.all(downloads);
-    } catch (err) {
-        console.error('Image download error:', err);
-        return res.status(500).json({ error: 'Failed to download images' });
-    }
     const pdfPath = path.join(EXPORT_DIR, safeName + '.pdf');
     const logPath = path.join(EXPORT_DIR, safeName + '.log');
     const auxPath = path.join(EXPORT_DIR, safeName + '.aux');
     const toDeleteList = [auxPath, logPath, texPath];
     const tempEnd = "\n\\end{document}";
+    const capTitle = name.toUpperCase();
+    const titlePath=path.join(TEX_DIR,'title.tex');
 
     let template = fs.readFileSync(path.join(TEX_DIR,'latex-temp.tex'));
 
-    let latexBody = mdToLatex(content);
+    let titleTex=fs.readFileSync(titlePath,'utf8');
+
+    titleTex=titleTex.replace(/__TITLE__/,capTitle);
+
+    fs.writeFileSync(titlePath,titleTex);
+
+    let latexBody = mdToLatex(originalContent);
 
     let texFile = template + latexBody + tempEnd;
 
