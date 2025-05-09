@@ -8,176 +8,26 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Delius&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
-        <style>
-:root {
-    --header-height: 80px;
-    --header-height-mb: 180px;
-    --sidebar-width: 0px;
-    --sidebar-bg: #393e46;
-    --sidebar-hover-bg: #4a4f58;
-    --transition: 0.3s ease;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    display: grid;
-    grid-template-areas:
-        "header header header"
-    "content content content";
-grid-template-rows: var(--header-height) 1fr;
-height: 100vh;
-background-color: #222831;
-font-family: sans-serif;
-transition: margin-left var(--transition);
-}
-                header {
-                    grid-area: header;
-                    display: grid;
-                    grid-template-columns: max-content auto max-content;
-                    align-items: center;
-                    height: var(--header-height);
-                    padding: 0 20px;
-                    background-color: #222831;
-                    z-index: 3;
+        <link rel="stylesheet" href="styles.css">
+        <script>
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['$', '$']],
+                    displayMath: [['$$', '$$']]
+                },
+                options: {
+                    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
                 }
-                .actions { display: flex; gap: 10px; }
-                .logo {
-                    font-family: 'Monoton', cursive;
-                    font-size: 2.5rem;
-                    color: #dfd0b8;
-                    justify-self: center;
-                    margin-right: 80px;
-                }
-                .header-btn {
-                    font-family: "Delius", cursive;
-                    font-size: 16px;
-                    border: none;
-                    border-radius: 50px;
-                    padding: 8px 20px;
-                    cursor: pointer;
-                    transition: background-color var(--transition);
-                }
-                #new, #save { background-color: #dfd0b8; color: #000; }
-                #export { background-color: #948979; color: #fff; }
-                #new:hover, #save:hover { background-color: rgba(223,208,184,0.8); }
-                #export:hover { background-color: rgba(148,137,121,0.8); }
-                .sidepanel {
-                    position: fixed;
-                    top: var(--header-height);
-                    left: 0;
-                    height: calc(100% - var(--header-height));
-                    width: var(--sidebar-width);
-                    background-color: var(--sidebar-bg);
-                    overflow-x: hidden;
-                    transition: width var(--transition);
-                    z-index: 2;
-                    padding-top: 20px;
-                    border-radius: 0 50px 50px 0;
-                }
-                .sidepanel nav a {
-                    position: relative;
-                    padding: 10px 30px 10px 20px;
-                    display: block;
-                    color: #ccc;
-                    text-decoration: none;
-                    transition: background-color var(--transition), color var(--transition);
-                }
-                .sidepanel nav a:hover {
-                    background-color: var(--sidebar-hover-bg);
-                    color: #fff;
-                }
-                .sidepanel nav a .delete-btn {
-                    position: absolute;
-                    right: 10px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: #ff5c5c;
-                    cursor: pointer;
-                    opacity: 0;
-                    transition: opacity 0.2s ease;
-                }
-                .sidepanel nav a:hover .delete-btn {
-                    opacity: 1;
-                }
-                .hover-zone {
-                    position: fixed;
-                    top: var(--header-height);
-                    left: 0;
-                    width: 20px;
-                    height: calc(100% - var(--header-height));
-                    z-index: 2;
-                }
-                .content {
-                    grid-area: content;
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    height: calc(100% - var(--header-height));
-                    margin-left: var(--sidebar-width);
-                    transition: margin-left var(--transition);
-                }
-                .pane { padding: 20px; overflow-y: auto; }
-                #editor, #previewPane {
-                    width: 100%; height: 100%;
-                    background-color: #161920; color: #eee;
-                    border: none; resize: none;
-                    font-family: monospace; font-size: 16px;
-                    padding: 15px; border-radius: 20px;
-                }
-                .openbtn {
-                    position: fixed;
-                    top: 50%;
-                    left: -40px;
-                    transform: translateY(-50%);
-                    font-size: 18px;
-                    width: 40px;
-                    height: 60px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: var(--sidebar-bg);
-                    color: #fff;
-                    border: none;
-                    cursor: pointer;
-                    transition: left var(--transition), opacity var(--transition);
-                    z-index: 4;
-                    border-radius: 0 15px 15px 0;
-                    opacity: 0;
-                    pointer-events: none;
-                }
-                .hover-zone:hover ~ .content .openbtn,
-                .openbtn:hover,
-                body.sidebar-open .openbtn {
-                    left: var(--sidebar-width);
-                    opacity: 1;
-                    pointer-events: auto;
-                }
-                @media (max-width: 650px) {
-                    header { display: flex; flex-direction: column; align-items: center; }
-                    .actions { order: 2; margin: 10px 0; }
-                    .logo { order: 1; margin: 10px 0; margin-right: 0; }
-                    #export { order: 3; margin: 10px 0; }
-                    .content {
-                        grid-template-columns: 1fr;
-                        grid-template-rows: auto auto;
-                        gap: 10px;
-                        margin-left: 0;
-                        margin-top: var(--header-height);
-                    }
-                    .pane { padding: 10px; }
-                    #editor, #previewPane { height: 300px; }
-                    .openbtn { left: 0 !important; opacity: 1 !important; pointer-events: auto !important; }
-                    .sidepanel {
-                        height: calc(100% - var(--header-height-mb));
-                        top: var(--header-height-mb);
-                        z-index: 4;
-                    }
-                }
-        </style>
+            };
+    </script>
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </head>
     <body>
         <header>
             <div class="actions">
                 <button id="new" class="header-btn">New Note</button>
                 <button id="save" class="header-btn">Save</button>
+                <button id="save-as" class="header-btn">Save As</button>
             </div>
             <div class="logo">My Notes</div>
             <button id="export" class="header-btn">Export</button>
@@ -191,96 +41,8 @@ transition: margin-left var(--transition);
             <div class="pane"><textarea id="editor" placeholder="Write markdown..."></textarea></div>
             <div class="pane"><div id="previewPane"></div></div>
         </div>
-        <script>
-            const apiBase = '';
-            let currentNoteName = null;
-            const toggleBtn = document.getElementById('toggleBtn');
-            const bodyEl = document.body;
-            const editor = document.getElementById('editor');
-            const previewPane = document.getElementById('previewPane');
-            const sidebar = document.getElementById('sidebar-nav');
-            const newBtn = document.getElementById('new');
-            const saveBtn = document.getElementById('save');
+        <script src="scripts.js"></script> 
 
-            // Toggle sidebar
-            toggleBtn.addEventListener('click', () => {
-                const root = document.documentElement;
-                const current = getComputedStyle(root).getPropertyValue('--sidebar-width').trim();
-                const open = current !== '0px';
-                bodyEl.classList.toggle('sidebar-open', !open);
-                root.style.setProperty('--sidebar-width', open ? '0px' : '250px');
-                toggleBtn.innerHTML = open ? '>' : '<';
-            });
-
-            // Live markdown preview
-            editor.addEventListener('input', () => {
-                let md = editor.value;
-                md = md.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-                md = md.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-                md = md.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-                md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
-                md = md.replace(/\*(.*?)\*/gim, '<em>$1</em>');
-                md = md.replace(/\n/g, '<br>');
-                previewPane.innerHTML = md;
-            });
-
-            // Fetch and render notes + delete UI
-            async function fetchNotes() {
-                const res = await fetch(apiBase + '/notes');
-                const notes = await res.json();
-                sidebar.innerHTML = '';
-                notes.forEach(name => {
-                    const a = document.createElement('a');
-                    a.href = '#'; a.textContent = name;
-                    // delete button
-                    const del = document.createElement('span');
-                    del.className = 'delete-btn';
-                    del.textContent = '×';
-                    del.addEventListener('click', async e => {
-                        e.stopPropagation();
-                        await fetch(apiBase + '/notes/' + encodeURIComponent(name), { method: 'DELETE' });
-                        fetchNotes();
-                    });
-                    a.appendChild(del);
-                    a.addEventListener('click', async e => { e.preventDefault(); await loadNote(name); });
-                    sidebar.appendChild(a);
-                });
-            }
-
-            // Load a note
-            async function loadNote(name) {
-                const res = await fetch(apiBase + '/notes/' + encodeURIComponent(name));
-                if (res.ok) {
-                    const { content } = await res.json();
-                    currentNoteName = name;
-                    editor.value = content;
-                    editor.dispatchEvent(new Event('input'));
-                }
-            }
-
-            // New note
-            newBtn.addEventListener('click', async () => {
-                editor.value = ''; previewPane.innerHTML = '';
-                const name = prompt('Enter new note name:'); if (!name) return;
-                const res = await fetch(apiBase + '/notes', {
-                    method: 'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ name, content: editor.value })
-                });
-                if (res.ok) { currentNoteName = name; fetchNotes(); } else alert('Error creating note');
-            });
-
-            // Save note
-            saveBtn.addEventListener('click', async () => {
-                if (!currentNoteName) return alert('No note selected');
-                await fetch(apiBase + '/notes', {
-                    method: 'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ name: currentNoteName, content: editor.value })
-                });
-            });
-
-            // Init
-            fetchNotes();
-        </script>
     </body>
 </html>
 

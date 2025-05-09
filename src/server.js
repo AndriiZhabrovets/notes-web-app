@@ -1,34 +1,14 @@
-//const http = require('http');
-//const lt = require('./latex-trs');
-//const name = "result";
-//
-    ////http.createServer(function (req, res) {
-        ////  res.writeHead(200, {'Content-Type': 'text/html'});
-        ////  res.end('Hello World!');
-        ////}).listen(8080); 
-//
-    //
-    //async function main() {
-        //    lt.sHello();
-        //    await lt.save(name);
-        //    await lt.compile(name);
-        //    await lt.clean(name);
-        //
-            //}
-//main()
-
-
-
-
-
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const NOTES_DIR = path.join(__dirname, 'markdown');
+const NOTES_DIR = path.join(__dirname, 'notes');
+const EXPORT_DIR = path.join(__dirname, 'export');
 const PUBLIC_DIR = path.join(__dirname, 'public');
+const TEX_DIR = path.join(__dirname, 'latex');
 
 // Ensure notes directory exists
 if (!fs.existsSync(NOTES_DIR)) fs.mkdirSync(NOTES_DIR);
@@ -36,6 +16,34 @@ if (!fs.existsSync(NOTES_DIR)) fs.mkdirSync(NOTES_DIR);
 app.use(express.json());
 // Serve frontend static files
 app.use(express.static(PUBLIC_DIR));
+
+async function downloadImage(url, destPath) {
+    let finalUrl = url;
+    const res = await fetch(finalUrl);
+    if (!res.ok) throw new Error(`Failed to download ${finalUrl}: ${res.statusText}`);
+    const arrayBuffer = await res.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    fs.writeFileSync(destPath, buffer);
+}
+
+function mdToLatex(md) {
+    return md
+        .replace(/\r\n/g, "\n")
+        .replace(/^### (.*$)/gim, '\\subsubsection{$1}')
+        .replace(/^## (.*$)/gim, '\\subsection{$1}')
+        .replace(/^# (.*$)/gim, '\\section{$1}')
+        .replace(/\*\*(.*?)\*\*/gim, '\\textbf{$1}')
+        .replace(/\*(.*?)\*/gim, '\\textit{$1}')
+       // .replace(/!\[\]\((.*?)\)/gim, '\\includegraphics[width=\\linewidth]{$1}')
+        .split(/\n{2,}/)                     // split on blank-line runs
+        .map(para => para
+                  .trim()
+                  .replace(/\n+/g, ' ')             // collapse any remaining single newlines into spaces
+                )
+        .join('\n\n\\par\n\n');   
+        
+}
+
 
 // API: list all note filenames (without .md)
 app.get('/notes', (req, res) => {
@@ -87,6 +95,81 @@ app.delete('/notes/:name', (req, res) => {
     });
 });
 
+
+app.post('/export', async (req, res) => {
+    const { name, content: originalContent } = req.body;
+    if (!name || originalContent === undefined) {
+        return res.status(400).json({ error: 'Name and content are required' });
+    }
+    const safeName = name.replace(/[^a-z0-9_\-]/gi, '_');
+    const texPath = path.join(TEX_DIR, safeName + '.tex');
+
+        const imagesPath = path.join(TEX_DIR, 'images', safeName);
+        if (!fs.existsSync(imagesPath)) fs.mkdirSync(imagesPath, { recursive: true });
+
+    // Download any remote images and rewrite paths
+    let content = originalContent;
+    const imageRegex = /!\[\]\((.*?)\)/g;
+    const downloads = [];
+    let match;
+    while ((match = imageRegex.exec(originalContent)) !== null) {
+        const url = match[1];
+        const filename = path.basename(url.split('?')[0]);
+        const localRel = path.posix.join('images', safeName, filename);
+        const localFull = path.join(TEX_DIR, localRel);
+        downloads.push(downloadImage(url, localFull));
+        content = content.split(url).join(localRel);
+    }
+
+    try {
+        await Promise.all(downloads);
+    } catch (err) {
+        console.error('Image download error:', err);
+        return res.status(500).json({ error: 'Failed to download images' });
+    }
+    const pdfPath = path.join(EXPORT_DIR, safeName + '.pdf');
+    const logPath = path.join(EXPORT_DIR, safeName + '.log');
+    const auxPath = path.join(EXPORT_DIR, safeName + '.aux');
+    const tocPath = path.join(EXPORT_DIR, safeName + '.toc');
+    const toDeleteList = [auxPath, logPath, texPath, tocPath];
+    const tempEnd = "\n\\end{document}";
+
+    let template = fs.readFileSync(path.join(TEX_DIR,'latex-temp.tex'));
+
+    let latexBody = mdToLatex(content);
+
+    let texFile = template + latexBody + tempEnd;
+
+    fs.writeFile(texPath, texFile, function (err) {
+                if (err) throw err;
+                console.log("Saved!");
+            })
+
+    console.log(texPath);
+    exec(`pdflatex  -output-directory=${EXPORT_DIR} ${texPath}`,(err, stdout, stderr) => {
+        if (err) {
+            console.error('pdflatex error:', stderr);
+            return res.status(500).json({ error: 'PDF generation failed' });
+        }
+        // Verify PDF exists before sending
+        fs.access(pdfPath, fs.constants.R_OK, accessErr => {
+            if (accessErr) {
+                console.error('PDF not found:', pdfFile);
+                return res.status(500).json({ error: 'PDF not generated' });
+            }
+            res.type('application/pdf');
+            res.sendFile(pdfPath, sendErr => {
+                if (sendErr) console.error('Send error:', sendErr);
+                // Cleanup auxiliary files
+                toDeleteList.forEach(file => {
+                    fs.unlink(file, unlinkErr => unlinkErr && console.error('Cleanup err:', unlinkErr));
+                });
+            });
+        });
+    }
+    );
+
+});
 // Fallback to index.html for SPA routing
 app.use((req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
