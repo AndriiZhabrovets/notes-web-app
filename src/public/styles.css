@@ -1,0 +1,61 @@
+* {
+        
+    background-color: #222831;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.logo{
+    max-width: 10%;
+    height: 10%;
+
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+header{
+
+    display: flex;
+    justify-content: space-between; 
+    align-items: centre;
+    padding: 30px 10%;
+}
+
+.header-btn{
+    font-family: "Delius", cursive;
+    font-weight: 400;
+    font-size: 16px;
+    font-style: normal;
+    border: none;
+    border-radius: 50px;
+    padding: 9px 25px;
+    transition: all 0.3s ease 0s;
+    cursor: pointer;
+    max-height: 50px;
+    margin-left: 20px;
+    margin-top: 10%;
+
+}
+
+#new{
+    background-color: rgba(223, 208, 184,1);
+    color: rgb(0,0,0);
+    
+}
+#export{
+    background-color: rgba(148, 137, 121,1);
+    color: rgb(255,255,255);
+    
+}
+
+
+#new:hover{
+    background-color: rgba(223, 208, 184,0.8);
+    
+}
+#export:hover{
+    background-color: rgba(148, 137, 121,0.8);
+    
+}

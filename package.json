@@ -1,8 +1,8 @@
 {
   "name": "notes-web-app",
   "version": "1.0.0",
-  "description": "My notes web application initially created for EFIF course in KSR",
-  "main": "src/index.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,9 +10,13 @@
     "type": "git",
     "url": "official.github.com:AndriiZhabrovets/notes-web-app.git"
   },
-  "author": "Andrii Zhabrovets",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0"
   }
 }
