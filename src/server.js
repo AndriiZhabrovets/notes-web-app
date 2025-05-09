@@ -20,7 +20,7 @@ app.use(express.static(PUBLIC_DIR));
 async function downloadImage(url, destPath) {
     let finalUrl = url;
     const res = await fetch(finalUrl);
-    if (!res.ok) throw new Error(`Failed to download ${finalUrl}: ${res.statusText}`);
+    if (!re/s.ok) throw new Error(`Failed to download ${finalUrl}: ${res.statusText}`);
     const arrayBuffer = await res.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     fs.writeFileSync(destPath, buffer);
@@ -28,6 +28,32 @@ async function downloadImage(url, destPath) {
 
 function mdToLatex(md) {
     return md
+
+   .replace(/(^|\n)((?:[-*] .*(?:\n|$))+)/g, (_, prefix, listBlock) => {
+        const items = listBlock.trim().split(/\n+/).map(line => {
+            const content = line.replace(/^[-*]\s+/, '');
+            return `\\item ${content}`;
+        }).join('\n');
+        return `${prefix}\\begin{itemize}
+
+        ${items}
+        \\end{itemize}\n`;
+    })
+
+    // Convert ordered list blocks
+        .replace(/(^|\n)((?:\d+\. .*(?:\n|$))+)/g, (_, prefix, listBlock) => {
+         const items = listBlock.trim().split(/\n+/).map(line => {
+            const content = line.replace(/^\d+\.\s+/, '');
+            return `\\item ${content}`;
+        }).join('\n');
+        return `${prefix}\\begin{enumerate}
+
+        ${items}
+        \\end{enumerate}\n`;
+    })
+
+
+
         .replace(/\r\n/g, "\n")
         .replace(/^### (.*$)/gim, '\\subsubsection{$1}')
         .replace(/^## (.*$)/gim, '\\subsection{$1}')
@@ -41,6 +67,10 @@ function mdToLatex(md) {
                   .replace(/\n+/g, ' ')             // collapse any remaining single newlines into spaces
                 )
         .join('\n\n\\par\n\n');   
+
+
+       
+
         
 }
 
@@ -130,8 +160,7 @@ app.post('/export', async (req, res) => {
     const pdfPath = path.join(EXPORT_DIR, safeName + '.pdf');
     const logPath = path.join(EXPORT_DIR, safeName + '.log');
     const auxPath = path.join(EXPORT_DIR, safeName + '.aux');
-    const tocPath = path.join(EXPORT_DIR, safeName + '.toc');
-    const toDeleteList = [auxPath, logPath, texPath, tocPath];
+    const toDeleteList = [auxPath, logPath, texPath];
     const tempEnd = "\n\\end{document}";
 
     let template = fs.readFileSync(path.join(TEX_DIR,'latex-temp.tex'));
@@ -147,6 +176,7 @@ app.post('/export', async (req, res) => {
 
     console.log(texPath);
     exec(`pdflatex  -output-directory=${EXPORT_DIR} ${texPath}`,(err, stdout, stderr) => {
+        exec(`pdflatex  -output-directory=${EXPORT_DIR} ${texPath}`,(err, stdout, stderr) => {
         if (err) {
             console.error('pdflatex error:', stderr);
             return res.status(500).json({ error: 'PDF generation failed' });
@@ -166,8 +196,9 @@ app.post('/export', async (req, res) => {
                 });
             });
         });
-    }
-    );
+    });
+
+});
 
 });
 // Fallback to index.html for SPA routing

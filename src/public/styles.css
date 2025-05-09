@@ -10,13 +10,13 @@
 body {
     display: grid;
     grid-template-areas:
-        "header header header"
+    "header header header"
     "content content content";
-grid-template-rows: var(--header-height) 1fr;
-height: 100vh;
-background-color: #222831;
-font-family: sans-serif;
-transition: margin-left var(--transition);
+    grid-template-rows: var(--header-height) 1fr;
+    height: 100vh;
+    background-color: #222831;
+    font-family: sans-serif;
+    transition: margin-left var(--transition);
 }
 header {
     grid-area: header;
@@ -105,11 +105,22 @@ header {
 }
 .pane { padding: 20px; overflow-y: auto; }
 #editor, #previewPane {
-    width: 100%; height: 100%;
-    background-color: #161920; color: #eee;
-    border: none; resize: none;
-    font-family: monospace; font-size: 16px;
-    padding: 15px; border-radius: 20px;
+    width: 100%; 
+    height: 100%;
+    background-color: #161920; 
+    color: #eee;
+    border: none; 
+    resize: none;
+    font-family: monospace; 
+    font-size: 16px;
+    padding: 15px; 
+    border-radius: 20px;
+
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    /* Enable vertical scrolling for overflow */
+    overflow-y: auto;
 }
 .openbtn {
     position: fixed;
@@ -132,35 +143,40 @@ header {
     opacity: 0;
     pointer-events: none;
 }
+
+#previewPane ul, #previewPane ol {
+    margin-left: 1em;
+    padding-left: 1em;
+    list-style-position: inside;
+}
 .hover-zone:hover ~ .content .openbtn,
-.openbtn:hover,
-body.sidebar-open .openbtn {
+.openbtn:hover, body.sidebar-open .openbtn {
     left: var(--sidebar-width);
     opacity: 1;
     pointer-events: auto;
 }
-        @media (max-width: 700px) {
-            header { display: flex; flex-direction: column; align-items: center; }
-            .actions { order: 2; margin: 10px 0; }
-            .logo { order: 1; margin: 10px 0; margin-right: 0; }
-            #export { order: 3; margin: 10px 0; }
-            .content {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto;
-                gap: 10px;
-                margin-left: 0;
-                margin-top: var(--header-height);
-            }
-            .pane { padding: 10px; margin-top: 20px; }
-            #editor, #previewPane { height: 300px; }
-            .openbtn { left: 0 !important; opacity: 1 !important; pointer-events: auto !important; }
-            .sidepanel {
-                height: calc(100% - var(--header-height-mb));
-                top: var(--header-height-mb);
-                z-index: 4;
-            }
-        }
-        .sidepanel nav a.active {
-                background-color: var(--sidebar-hover-bg);
-                    color: #fff;
-        }
+@media (max-width: 850px) {
+    header { display: flex; flex-direction: column; align-items: center; }
+    .actions { order: 2; margin: 10px 0; }
+    .logo { order: 1; margin: 10px 0; margin-right: 0; }
+    #export { order: 3; margin: 10px 0; }
+    .content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        gap: 10px;
+        margin-left: 0;
+        margin-top: var(--header-height);
+    }
+    .pane { padding: 10px; margin-top: 20px; }
+    #editor, #previewPane { height: 300px; }
+    .openbtn {
+        left: var(--sidebar-width) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    .sidepanel {
+        height: calc(100% - var(--header-height-mb));
+        top: var(--header-height-mb);
+        z-index: 4;
+    }
+}

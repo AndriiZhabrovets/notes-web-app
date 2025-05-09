@@ -22,14 +22,20 @@ toggleBtn.addEventListener('click', () => {
 // Live markdown preview
 editor.addEventListener('input', () => {
     let md = editor.value;
+
+    md = md.replace(/^(?:-|\*)\s+(.*)$/gm, '<ul><li>$1</li></ul>');
+           // Ordered list items
+    md = md.replace(/^\d+\.\s+(.*)$/gm, '<ol><li>$1</li></ol>');
+
+
     md = md.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     md = md.replace(/^## (.*$)/gim, '<h2>$1</h2>');
     md = md.replace(/^# (.*$)/gim, '<h1>$1</h1>');
     md = md.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
     md = md.replace(/\*(.*?)\*/gim, '<em>$1</em>');
     md = md.replace(/\((.*?)\)/gim, '($1)');
-    md = md.replace(/!\[\]\((.*?)\)/gim, '<img src="$1">');
     md = md.replace(/\n/g, '<br>');
+    md = md.replace(/\\newpage/g, '');
     previewPane.innerHTML = md;
     if (window.MathJax && MathJax.typesetPromise) {
         MathJax.typesetPromise([previewPane]);
@@ -47,9 +53,6 @@ async function fetchNotes() {
         a.href = '#'; a.textContent = name;
         // delete button
         const del = document.createElement('span');
-        if (name === currentNoteName) {
-            a.classList.add('active');
-        }
         del.className = 'delete-btn';
         del.textContent = '×';
         del.addEventListener('click', async e => {
@@ -71,9 +74,6 @@ async function loadNote(name) {
         currentNoteName = name;
         editor.value = content;
         editor.dispatchEvent(new Event('input'));
-        document.querySelectorAll('.sidepanel nav a').forEach(a => {
-            a.classList.toggle('active', a.textContent === currentNoteName);
-        });
     }
 }
 // New note
