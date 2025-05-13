@@ -9,6 +9,7 @@ const newBtn = document.getElementById('new');
 const saveBtn = document.getElementById('save');
 const saveAsBtn = document.getElementById('save-as');
 const exportBtn = document.getElementById('export');
+const search = document.getElementById('search');
 // Toggle sidebar
 toggleBtn.addEventListener('click', () => {
     const root = document.documentElement;
@@ -19,7 +20,7 @@ toggleBtn.addEventListener('click', () => {
     toggleBtn.innerHTML = open ? '>' : '<';
 });
 
-// Live markdown preview
+
 editor.addEventListener('input', () => {
     let md = editor.value;
 
@@ -40,6 +41,30 @@ editor.addEventListener('input', () => {
     if (window.MathJax && MathJax.typesetPromise) {
         MathJax.typesetPromise([previewPane]);
     }
+
+});
+// Live markdown preview
+search.addEventListener('input', async() => {
+    let note = search.value;
+    const res = await fetch(apiBase + '/notes/' + encodeURIComponent(note) + "?mode=search");
+    const notes = await res.json();
+    sidebar.innerHTML = '';
+    notes.forEach(name => {
+        const a = document.createElement('a');
+        a.href = '#'; a.textContent = name;
+        // delete button
+        const del = document.createElement('span');
+        del.className = 'delete-btn';
+        del.textContent = '×';
+        del.addEventListener('click', async e => {
+            e.stopPropagation();
+            await fetch(apiBase + '/notes/' + encodeURIComponent(name), { method: 'DELETE' });
+            fetchNotes();
+        });
+        a.appendChild(del);
+        a.addEventListener('click', async e => { e.preventDefault(); await loadNote(name); });
+        sidebar.appendChild(a);
+    });
 
 });
 
@@ -68,7 +93,7 @@ async function fetchNotes() {
 
 // Load a note
 async function loadNote(name) {
-    const res = await fetch(apiBase + '/notes/' + encodeURIComponent(name));
+    const res = await fetch(apiBase + '/notes/' + encodeURIComponent(name) + "?mode=load");
     if (res.ok) {
         const { content } = await res.json();
         currentNoteName = name;

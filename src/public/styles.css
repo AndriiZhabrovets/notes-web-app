@@ -121,6 +121,26 @@ header {
     white-space: pre-wrap;
     overflow-y: auto;
 }
+#search{
+    width: 90%; 
+    height: 10px;
+    margin-left: 10px;
+    margin-bottom: 20px;
+    background-color: #161920; 
+    color: #eee;
+    border: none; 
+    resize: none;
+    font-family: monospace; 
+    font-size: 14px;
+    padding: 12px; 
+    padding-bottom: 17px;
+    border-radius: 10px;
+
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    overflow-y: hidden;
+}
 .openbtn {
     position: fixed;
     top: 50%;
