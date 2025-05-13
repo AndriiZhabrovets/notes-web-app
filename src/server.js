@@ -91,7 +91,7 @@ app.get('/notes/:name', (req, res) => {
         if (err) return res.status(500).json({ error: 'Unable to list notes' });
         const notes = files
             .filter(f => f.endsWith('.md'))
-            .filter(f => f.includes(name.trim()))
+            .filter(f => f.toLowerCase().includes(name.trim().toLowerCase()))
             .map(f => path.basename(f, '.md'));
         res.json(notes);
     });
